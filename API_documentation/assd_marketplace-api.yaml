@@ -1,0 +1,304 @@
+openapi: 3.0.0
+info:
+  title: ASSD Marketplace API
+  version: '2.0'
+  description: |-
+    This API is created in part of an assd school project. It should serve as an API for an ebay -style buy & sell application. 
+
+    User can:
+    - Create account
+    - Create postings
+    - Add images to posting
+    - Update postings
+    - Delete postings
+    - Retrieve all postings
+    - Use category or location to filter the retrieved postings
+
+    Under the hood the api is hosted in Heroku. MongoDB serves as a database and cloudinary to upload and serve images. The server is build with Nodejs and express.  
+  contact:
+    name: Mikko Jokieplto
+    email: t9joju00@students.oamk.fi
+servers:
+  - url: 'http://assdmarketplace.herokuapp.com/'
+    description: Heroku
+paths:
+  postings/:
+    parameters: []
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+      operationId: get-users-userId-products-edit_product-productId
+      description: |-
+        Returns all postings. Output can be filtered by Location (city) and Category or both.
+
+        Note:
+        Does not require login.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: Location
+          description: 'Used for filtering returned postings '
+        - schema:
+            type: string
+          in: query
+          name: Category
+          description: Used for filtering returned postings
+  auth/login:
+    parameters: []
+    post:
+      summary: ''
+      operationId: postauth-login
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+      description: Endpoint to login. Returns json webtoken when authentication is succesfull. Webtoken will be valid for one hour.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+        description: |-
+          Used for logging in to api.
+           
+          Returns 200 and json web token if succesful. 
+          Returns 401 if authentication failes either email or password is not matched with an existing user account.
+          Returns 500 in case of unindentied errors.
+  auth/signup:
+    parameters: []
+    put:
+      summary: ''
+      operationId: putauth-signup
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: 'Validation failed, entered data incorrect.'
+        '500':
+          description: Internal Server Error
+      description: |-
+        Used for creating a new user account.
+
+        Required values:
+        name 
+        email
+        password
+  'postings/:postingId':
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: 'get-postings-:postingId'
+      description: |
+        Returns a single posting
+
+        Note:
+        Doesn't require logging in
+    post:
+      summary: ''
+      operationId: 'post-postings-:postingId'
+      responses:
+        '201':
+          description: Created
+        '404':
+          description: Not Found
+        '422':
+          description: 'Validation failed, entered data incorrect.'
+        '500':
+          description: |
+            Internal Server Error
+      description: |-
+        Used for creating a new posting
+
+        Note:
+        User needs to be logged in in order to create a posting
+        Minimum length of title: 5 characters
+        Minimum length of description: 5 characters
+        Required values: title, description, category, location, askingPrice, deliveryType
+    patch:
+      summary: ''
+      operationId: 'patch-postings-:postingId'
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: |-
+        Used for adding images to a posting. 
+
+        Note:
+        - User needs to be logged in.
+        - User can only add images to his own posting
+    delete:
+      summary: ''
+      operationId: 'delete-postings-:postingId'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: |-
+        Used to delete a posting and relation to user.
+
+        Note:
+        - Deletes a posting and the reference to posting from user account. 
+        - User can only delete his own postings.
+    put:
+      summary: ''
+      operationId: 'put-postings-:postingId'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '422':
+          description: 'Validation failed, entered data incorrect.'
+        '500':
+          description: Internal Server Error
+      description: |-
+        Used for updating posting. 
+
+        Note:
+        - User needs to be logged in.
+        - User can only updaste his own postings.
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      description: 'User model includes also automatically created _id value and a list of postings type:#ref to link the postings to the user. When f.ex. creating a new user the required values are only: email and password'
+      x-examples:
+        simple-example:
+          name: test_user
+          email: user@example.com
+          password: very_secret_password
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        postings:
+          type: array
+          items:
+            $ref: ./fleemarket-api.v1.json#/components/schemas/Posting
+        _id:
+          type: string
+      required:
+        - name
+        - email
+    Posting:
+      title: Posting
+      type: object
+      description: 'A new posting consists of title, description (minimum accepted length 5 characters), location, askingPrice and deliveryType. Images are always posted seperately with a PATCH route.  '
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: ./fleemarket-api.v1.json#/components/schemas/Location
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Images'
+        askingPrice:
+          type: string
+        createdAt:
+          type: string
+        deliveryType:
+          $ref: '#/components/schemas/DeliveryType'
+      x-examples:
+        example-1:
+          title: Example posting
+          description: This is an example posting
+          location:
+            street: Test_street 42
+            city: Test_city
+            country: Test_country
+          askingPrice: '200'
+          deliveryType:
+            '1': string
+    DeliveryType:
+      title: DeliveryType
+      type: object
+      properties:
+        '1':
+          type: string
+        '2':
+          type: string
+    Images:
+      title: Images
+      type: object
+      properties:
+        _id:
+          type: string
+        imageUri:
+          type: string
+        imagePublicId:
+          type: string
+    Location:
+      title: Location
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+  securitySchemes: {}
+  parameters:
+    filterByLocation:
+      name: filterByLocation
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Filter postings by location
+    filterByCategory:
+      name: filterByCategory
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Filter postings by category
+    filterByDate:
+      name: filterByDate
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Filter postings by date of posting
