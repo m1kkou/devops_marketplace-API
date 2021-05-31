@@ -2,6 +2,10 @@ version: "3"
 services:
   marketplace-API:
     image: m1kkou/devops_marketplace-api:v1
+    environment:
+      - CLOUD_NAME=${{secrets.CLOUD_NAME}}
+      - CLOUD_KEY=${{secrets.CLOUD_KEY}}
+      - CLOUD_SECRET=${{secrets.CLOUD_SECRET}}
     ports:
       - 4000:80
     container_name: marketplace-API
