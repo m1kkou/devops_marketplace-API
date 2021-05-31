@@ -23,7 +23,6 @@ jobs:
           push: true
           tags: m1kkou/devops_marketplace-api
 
-jobs:
   heroku-deploy:
     needs: [build]
     runs-on: ubuntu-latest
