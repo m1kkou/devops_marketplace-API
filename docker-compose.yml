@@ -3,16 +3,17 @@ services:
   marketplace-API:
     image: m1kkou/devops_marketplace-api:v1
     environment:
-      - CLOUD_NAME=${{secrets.CLOUD_NAME}}
+      - CLOUD_NAME= ${CLOUD_NAME} | ${{secrets.CLOUD_NAME}}
       - CLOUD_KEY=${{secrets.CLOUD_KEY}}
       - CLOUD_SECRET=${{secrets.CLOUD_SECRET}}
+      - JWT_KEY=${{secrets.JWT_KEY}}
     ports:
       - 4000:80
     container_name: marketplace-API
   watchtower:
     image: containrrr/watchtower
     environment:
-      - WATCHTOWER_POLL_INTERVAL=60 # Poll every 60 seconds
+      - WATCHTOWER_POLL_INTERVAL=60
       - WATCHTOWER_NO_PULL=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

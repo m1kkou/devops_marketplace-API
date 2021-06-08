@@ -12,4 +12,8 @@ ENV PORT=80
 
 EXPOSE ${PORT}
 
-CMD ["node", "app.js"]
+RUN chmod a+x /app && addgroup -S appgroup && adduser -S appuser -G appgroup
+
+USER appuser
+
+ENTRYPOINT ["node", "app.js"]

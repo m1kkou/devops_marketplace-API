@@ -71,7 +71,7 @@ mongoose
     'mongodb+srv://assd_marketplace-app:TsHMwP2_XwX4vtg@cluster0.e7tof.mongodb.net/Cluster0?retryWrites=true&w=majority'
     )
 .then(result => { 
-    app.listen(process.env.PORT);
+    app.listen(80);
 })
 .catch(err => {
     console.log(err)

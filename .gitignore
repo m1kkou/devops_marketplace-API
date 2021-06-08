@@ -1,4 +1,5 @@
 node_modules/
-
-# Environment variables
 .env
+Dockerfile.test
+Jenkinsfile
+images
