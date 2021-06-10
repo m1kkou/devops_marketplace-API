@@ -3,7 +3,7 @@ services:
   marketplace-API:
     image: m1kkou/devops_marketplace-api:v1
     environment:
-      - CLOUD_NAME= ${CLOUD_NAME} | ${{secrets.CLOUD_NAME}}
+      - CLOUD_NAME=${{secrets.CLOUD_NAME}}
       - CLOUD_KEY=${{secrets.CLOUD_KEY}}
       - CLOUD_SECRET=${{secrets.CLOUD_SECRET}}
       - JWT_KEY=${{secrets.JWT_KEY}}
